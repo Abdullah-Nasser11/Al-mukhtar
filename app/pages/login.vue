@@ -65,20 +65,26 @@
 <script setup>
 const password = ref('')
 const error = ref(false)
-const adminCookie = useCookie('is_admin')
+
+// تعريف الكوكي مرة واحدة في البداية مع الخيارات المطلوبة
+const isAdminCookie = useCookie('is_admin', {
+  maxAge: 60 * 60 * 24, // يوم واحد
+  path: '/',
+  watch: true // يجعل Nuxt يراقب التغيير ويحدث الحالة فوراً
+})
 
 const handleLogin = () => {
+  console.log("محاولة تسجيل الدخول...") // للارشاد عند الفحص
+
   if (password.value === 'admin123') {
-    // نستخدم 'is_admin' ليتطابق مع الـ Middleware
-    const isAdminCookie = useCookie('is_admin', {
-      maxAge: 60 * 60 * 24, // يبقى مسجل الدخول لمدة يوم كامل
-      path: '/' // متاح في كل الموقع
-    })
-    
+    // تحديث القيمة فقط دون إعادة تعريف المتغير
     isAdminCookie.value = 'true'
     
-    // توجيه فوري
-    return navigateTo('/admin')
+    // إضافة تأخير بسيط جداً لضمان حفظ الكوكي قبل التوجيه
+    setTimeout(() => {
+      navigateTo('/admin')
+    }, 100)
+    
   } else {
     error.value = true
     setTimeout(() => error.value = false, 3000)
