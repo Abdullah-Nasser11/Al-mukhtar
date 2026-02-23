@@ -1,10 +1,11 @@
 export default defineNuxtRouteMiddleware((to) => {
   const isAdmin = useCookie('is_admin')
   
-  // التحقق فقط إذا كنا نتجه لصفحة الأدمن
+  // التحقق فقط عند محاولة دخول صفحات الإدارة
   if (to.path.startsWith('/admin')) {
-     if (isAdmin.value !== 'true') {
-       return navigateTo('/login')
-     }
+    // في بيئة Static/SPA، نتحقق من القيمة مباشرة
+    if (isAdmin.value !== 'true') {
+      return navigateTo('/login')
+    }
   }
 })

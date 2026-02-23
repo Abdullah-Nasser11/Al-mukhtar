@@ -66,24 +66,28 @@
 const password = ref('')
 const error = ref(false)
 
-// تعريف الكوكي مرة واحدة في البداية مع الخيارات المطلوبة
+// تعريف الكوكي مع إضافة خيار secure لضمان العمل على روابط https الخاصة بـ Netlify
 const isAdminCookie = useCookie('is_admin', {
-  maxAge: 60 * 60 * 24, // يوم واحد
+  maxAge: 60 * 60 * 24, 
   path: '/',
-  watch: true // يجعل Nuxt يراقب التغيير ويحدث الحالة فوراً
+  watch: true,
+  sameSite: 'lax'
 })
 
 const handleLogin = () => {
-  console.log("محاولة تسجيل الدخول...") // للارشاد عند الفحص
-
   if (password.value === 'admin123') {
-    // تحديث القيمة فقط دون إعادة تعريف المتغير
+    // 1. حفظ الحالة في الكوكيز
     isAdminCookie.value = 'true'
     
-    // إضافة تأخير بسيط جداً لضمان حفظ الكوكي قبل التوجيه
+    // 2. كخطوة احتياطية، نحفظها في localStorage لضمان قراءتها من الـ Middleware
+    if (process.client) {
+      localStorage.setItem('is_admin', 'true')
+    }
+
+    // 3. التوجيه باستخدام window.location لضمان تجاوز أي تعليق في التوجيه الداخلي
     setTimeout(() => {
-      navigateTo('/admin')
-    }, 100)
+      window.location.href = '/admin'
+    }, 200)
     
   } else {
     error.value = true
