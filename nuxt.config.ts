@@ -2,14 +2,9 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-
-  modules: ['@nuxtjs/tailwindcss'],
+   ssr: false,
   nitro: {
-    storage: {
-      data: {
-        driver: 'memory'
-      }
-    }
-  }
-
+    preset: "static"
+  },
+  modules: ['@nuxtjs/tailwindcss'],
 })
