@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   nitro: {
     storage: {
       data: {
-        driver: 'vercelKV'
+        driver: 'memory'
       }
     }
   }
