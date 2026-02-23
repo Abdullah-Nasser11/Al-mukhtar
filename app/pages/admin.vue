@@ -19,7 +19,7 @@
       <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 class="text-3xl font-black text-slate-800">إدارة المنتجات</h1>
-          <p class="text-slate-500">لديك حالياً {{ filteredProducts.length }} منتجات.</p>
+          <p class="text-slate-500">لديك حالياً {{ filteredProducts?.length || 0 }} منتجات.</p>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
@@ -71,7 +71,6 @@
                     @click="deleteCategoryGlobally(form.category)"
                     type="button"
                     class="bg-red-50 text-red-500 px-3 rounded-xl hover:bg-red-100 transition border border-red-100"
-                    title="حذف هذه الفئة من جميع المنتجات"
                   >
                     🗑️
                   </button>
@@ -165,7 +164,9 @@
 <script setup>
 definePageMeta({ middleware: 'auth' })
 
+// استخدام سطر حماية للـ fetch
 const { data: products, refresh } = await useFetch('/api/products')
+
 const editId = ref(null)
 const searchQuery = ref('')
 const newCategoryName = ref('')
@@ -174,6 +175,7 @@ const temporaryCategories = ref([])
 const form = ref({ title: '', description: '', category: '', discountPrice: 0, originalPrice: 0, image: '', tag: '' })
 
 const existingCategories = computed(() => {
+  // إضافة فحص لضمان أن products.value ليست فارغة قبل عمل map
   const savedCats = products.value ? products.value.map(p => p.category) : []
   const allCats = [...savedCats, ...temporaryCategories.value].filter(c => c && c !== 'NEW_CATEGORY')
   return [...new Set(['عام', ...allCats])]
@@ -182,20 +184,23 @@ const existingCategories = computed(() => {
 const categoriesCount = computed(() => existingCategories.value.length)
 
 const filteredProducts = computed(() => {
-  if (!products.value) return []
+  // فحص أساسي لمنع خطأ .filter is not a function
+  if (!products.value || !Array.isArray(products.value)) return []
+  
   const query = searchQuery.value.toLowerCase()
-  return products.value.filter(p => p.title.toLowerCase().includes(query) || p.category.toLowerCase().includes(query))
+  return products.value.filter(p => {
+    const titleMatch = p.title?.toLowerCase().includes(query)
+    const categoryMatch = p.category?.toLowerCase().includes(query)
+    return titleMatch || categoryMatch
+  })
 })
 
-// دالة حذف الفئة من جميع المنتجات
 const deleteCategoryGlobally = async (categoryName) => {
   if (confirm(`هل أنت متأكد؟ سيتم تغيير فئة جميع المنتجات التي تحمل اسم "${categoryName}" إلى "عام".`)) {
     try {
-      // 1. مسح من القائمة المؤقتة
       temporaryCategories.value = temporaryCategories.value.filter(c => c !== categoryName)
       
-      // 2. تحديث المنتجات في السيرفر (تحويل فئتها إلى "عام")
-      const updates = products.value
+      const updates = (products.value || [])
         .filter(p => p.category === categoryName)
         .map(p => $fetch('/api/products', {
           method: 'PUT',
@@ -205,7 +210,7 @@ const deleteCategoryGlobally = async (categoryName) => {
       await Promise.all(updates)
       await refresh()
       form.value.category = 'عام'
-      alert('✅ تم حذف الفئة وتحديث المنتجات المرتبطة.')
+      alert('✅ تم حذف الفئة وتحديث المنتجات.')
     } catch (e) {
       alert('❌ حدث خطأ أثناء الحذف.')
     }
@@ -255,7 +260,7 @@ const deleteProduct = async (id) => {
 }
 
 const startEdit = (p) => {
-  editId.value = p.id
+  editId.value = p.id || p._id
   form.value = { ...p }
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
