@@ -76,19 +76,14 @@ const isAdminCookie = useCookie('is_admin', {
 
 const handleLogin = () => {
   if (password.value === 'admin123') {
-    // 1. حفظ الحالة في الكوكيز
-    isAdminCookie.value = 'true'
-    
-    // 2. كخطوة احتياطية، نحفظها في localStorage لضمان قراءتها من الـ Middleware
-    if (process.client) {
-      localStorage.setItem('is_admin', 'true')
-    }
+    // وضع الكوكي
+    const adminStatus = useCookie('is_admin', { maxAge: 60 * 60 * 24, path: '/' })
+    adminStatus.value = 'true'
 
-    // 3. التوجيه باستخدام window.location لضمان تجاوز أي تعليق في التوجيه الداخلي
+    // الانتظار للحظة بسيطة ثم الانتقال الإجباري
     setTimeout(() => {
       window.location.href = '/admin'
-    }, 200)
-    
+    }, 300)
   } else {
     error.value = true
     setTimeout(() => error.value = false, 3000)

@@ -1,10 +1,11 @@
 export default defineNuxtRouteMiddleware((to) => {
+  // نستخدم useCookie مع اسم موحد
   const isAdmin = useCookie('is_admin')
   
-  // التحقق فقط عند محاولة دخول صفحات الإدارة
   if (to.path.startsWith('/admin')) {
-    // في بيئة Static/SPA، نتحقق من القيمة مباشرة
+    // نتحقق من القيمة. إذا كانت فارغة، نمنع الدخول
     if (isAdmin.value !== 'true') {
+      console.log("الوصول مرفوض: الكوكي غير موجود أو قيمته ليست true")
       return navigateTo('/login')
     }
   }
