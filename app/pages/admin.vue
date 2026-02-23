@@ -19,9 +19,8 @@
       <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 class="text-3xl font-black text-slate-800">إدارة المنتجات</h1>
-          <p class="text-slate-500">لديك حالياً {{ filteredProducts.length }} منتجات معروضة.</p>
+          <p class="text-slate-500">لديك حالياً {{ filteredProducts.length }} منتجات.</p>
         </div>
-
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
             <div class="bg-indigo-50 p-3 rounded-xl text-indigo-600 text-xl">🛒</div>
@@ -51,28 +50,37 @@
             <form @submit.prevent="saveProduct" class="space-y-4 text-right">
               <div>
                 <label class="block text-sm font-medium text-slate-600 mb-1">اسم المنتج</label>
-                <input v-model="form.title" type="text" required class="admin-input" placeholder="" />
+                <input v-model="form.title" type="text" required class="admin-input" />
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-slate-600 mb-1">وصف المنتج</label>
-                <textarea v-model="form.description" rows="3" class="admin-input" placeholder="اكتب تفاصيل المنتج هنا..."></textarea>
+                <textarea v-model="form.description" rows="3" class="admin-input"></textarea>
               </div>
 
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-slate-600 mb-1">الفئة</label>
-                  <select v-model="form.category" required class="admin-input">
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-1">الفئة</label>
+                <div class="flex gap-2">
+                  <select v-model="form.category" required class="admin-input flex-1">
                     <option value="" disabled>اختر الفئة</option>
                     <option v-for="cat in existingCategories" :key="cat" :value="cat">{{ cat }}</option>
                     <option value="NEW_CATEGORY">+ فئة جديدة</option>
                   </select>
-                  <input v-if="form.category === 'NEW_CATEGORY'" v-model="newCategoryName" type="text" 
-                    class="admin-input mt-2 border-indigo-300" placeholder="اسم الفئة الجديدة" @blur="handleNewCategory" />
+                  <button 
+                    v-if="form.category && form.category !== 'NEW_CATEGORY' && form.category !== 'عام'"
+                    @click="deleteCategoryGlobally(form.category)"
+                    type="button"
+                    class="bg-red-50 text-red-500 px-3 rounded-xl hover:bg-red-100 transition border border-red-100"
+                    title="حذف هذه الفئة من جميع المنتجات"
+                  >
+                    🗑️
+                  </button>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-slate-600 mb-1">الخصم</label>
-                  <input v-model="form.tag" type="text" class="admin-input" placeholder="خصم 20%" />
+                
+                <div v-if="form.category === 'NEW_CATEGORY'" class="flex gap-2 mt-2 p-2 bg-indigo-50 rounded-xl border border-indigo-100">
+                  <input v-model="newCategoryName" type="text" class="admin-input border-indigo-200 flex-1 !bg-white" placeholder="اسم الفئة الجديدة" @keyup.enter="handleNewCategory" />
+                  <button @click="handleNewCategory" type="button" class="bg-indigo-600 text-white px-3 rounded-lg hover:bg-indigo-700 transition">✅</button>
+                  <button @click="clearNewCategory" type="button" class="bg-white text-red-500 px-3 rounded-lg border border-red-100 hover:bg-red-50 transition">✕</button>
                 </div>
               </div>
 
@@ -98,18 +106,13 @@
                     <span class="text-indigo-600 font-bold text-xs underline">تصفح</span>
                   </div>
                 </div>
-                <div v-if="form.image" class="mt-2 text-center">
-                  <img :src="form.image" class="h-20 mx-auto rounded-lg border shadow-sm" />
-                </div>
               </div>
 
               <div class="pt-4 flex gap-2">
-                <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95">
+                <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg transition-all active:scale-95">
                   {{ editId ? 'تحديث الآن' : 'حفظ المنتج' }}
                 </button>
-                <button v-if="editId" @click="resetForm" type="button" class="bg-slate-100 text-slate-500 px-4 rounded-xl hover:bg-slate-200">
-                  إلغاء
-                </button>
+                <button v-if="editId" @click="resetForm" type="button" class="bg-slate-100 text-slate-500 px-4 rounded-xl hover:bg-slate-200">إلغاء</button>
               </div>
             </form>
           </div>
@@ -119,51 +122,35 @@
           <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-6 border-b border-slate-50 flex justify-between items-center">
               <h3 class="font-bold text-slate-800 text-lg">قائمة المخزون</h3>
-              <input v-model="searchQuery" type="text" placeholder="بحث باسم المنتج أو الفئة..." class="bg-slate-50 border border-slate-100 rounded-lg text-sm p-2 w-64 focus:ring-1 focus:ring-indigo-500 outline-none" />
+              <input v-model="searchQuery" type="text" placeholder="بحث..." class="bg-slate-50 border border-slate-100 rounded-lg text-sm p-2 w-64 outline-none" />
             </div>
-
             <div class="overflow-x-auto">
-              <table class="w-full text-right">
+              <table class="w-full text-right text-sm">
                 <thead>
-                  <tr class="bg-slate-50/50 text-slate-400 text-xs uppercase tracking-wider">
+                  <tr class="bg-slate-50/50 text-slate-400">
                     <th class="p-4">المنتج</th>
-                    <th class="p-4">الفئة</th>
-                    <th class="p-4">السعر</th>
+                    <th class="p-4">الفئة / الوصف</th>
                     <th class="p-4 text-center">العمليات</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                  <tr v-for="product in filteredProducts" :key="product.id" class="group hover:bg-slate-50/80 transition-colors">
-                    <td class="p-4">
-                      <div class="flex items-center gap-3">
-                        <div class="w-14 h-14 rounded-xl bg-slate-100 flex-shrink-0 overflow-hidden border border-slate-200 flex items-center justify-center">
-                          <img v-if="product.image" :src="product.image" :alt="product.title" class="w-full h-full object-cover" @error="(e) => e.target.src = 'https://placehold.co/100x100?text=No+Image'" />
-                          <span v-else class="text-slate-300 text-xs">لا صورة</span>
-                        </div>
-                        <div>
-                          <span class="font-bold text-slate-700 block line-clamp-1 text-sm">{{ product.title }}</span>
-                          <span class="text-[10px] text-slate-400 line-clamp-1 max-w-[150px]">{{ product.description }}</span>
-                        </div>
+                  <tr v-for="product in filteredProducts" :key="product.id" class="group hover:bg-slate-50">
+                    <td class="p-4 flex items-center gap-3">
+                      <div class="w-10 h-10 rounded bg-slate-100 overflow-hidden border">
+                        <img v-if="product.image" :src="product.image" class="w-full h-full object-cover" />
                       </div>
-                    </td>
-                    <td class="p-4 text-slate-500">
-                      <span class="bg-slate-100 px-2 py-1 rounded-md text-[10px] font-medium">{{ product.category }}</span>
+                      <span class="font-bold text-slate-700">{{ product.title }}</span>
                     </td>
                     <td class="p-4">
-                      <div class="flex flex-col">
-                        <span class="font-black text-slate-800 text-sm">{{ product.discountPrice }}$</span>
-                        <span class="text-[10px] text-slate-400 line-through">{{ product.originalPrice }}$</span>
-                      </div>
+                      <span class="bg-slate-100 px-2 py-0.5 rounded text-[10px] text-slate-600 font-bold block w-fit mb-1">{{ product.category }}</span>
+                      <p class="text-[10px] text-slate-400 line-clamp-1">{{ product.description }}</p>
                     </td>
-                    <td class="p-4">
+                    <td class="p-4 text-center">
                       <div class="flex justify-center gap-2">
-                        <button @click="startEdit(product)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="تعديل">📝</button>
-                        <button @click="deleteProduct(product.id)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="حذف">🗑️</button>
+                        <button @click="startEdit(product)" class="p-1 text-indigo-600">📝</button>
+                        <button @click="deleteProduct(product.id)" class="p-1 text-red-500">🗑️</button>
                       </div>
                     </td>
-                  </tr>
-                  <tr v-if="!filteredProducts.length">
-                    <td colspan="4" class="p-10 text-center text-slate-400">لا توجد نتائج تطابق بحثك أو القائمة فارغة.</td>
                   </tr>
                 </tbody>
               </table>
@@ -182,22 +169,14 @@ const { data: products, refresh } = await useFetch('/api/products')
 const editId = ref(null)
 const searchQuery = ref('')
 const newCategoryName = ref('')
+const temporaryCategories = ref([])
 
-const form = ref({
-  title: '',
-  description: '',
-  category: '',
-  discountPrice: 0,
-  originalPrice: 0,
-  image: '',
-  tag: ''
-})
+const form = ref({ title: '', description: '', category: '', discountPrice: 0, originalPrice: 0, image: '', tag: '' })
 
-// استخراج الفئات الفريدة الموجودة مسبقاً
 const existingCategories = computed(() => {
-  if (!products.value) return ['عام']
-  const cats = products.value.map(p => p.category)
-  return [...new Set(['عام', ...cats])]
+  const savedCats = products.value ? products.value.map(p => p.category) : []
+  const allCats = [...savedCats, ...temporaryCategories.value].filter(c => c && c !== 'NEW_CATEGORY')
+  return [...new Set(['عام', ...allCats])]
 })
 
 const categoriesCount = computed(() => existingCategories.value.length)
@@ -205,61 +184,54 @@ const categoriesCount = computed(() => existingCategories.value.length)
 const filteredProducts = computed(() => {
   if (!products.value) return []
   const query = searchQuery.value.toLowerCase()
-  return products.value.filter(p =>
-    p.title.toLowerCase().includes(query) ||
-    p.category.toLowerCase().includes(query)
-  )
+  return products.value.filter(p => p.title.toLowerCase().includes(query) || p.category.toLowerCase().includes(query))
 })
 
-// معالجة إضافة فئة جديدة من القائمة
+// دالة حذف الفئة من جميع المنتجات
+const deleteCategoryGlobally = async (categoryName) => {
+  if (confirm(`هل أنت متأكد؟ سيتم تغيير فئة جميع المنتجات التي تحمل اسم "${categoryName}" إلى "عام".`)) {
+    try {
+      // 1. مسح من القائمة المؤقتة
+      temporaryCategories.value = temporaryCategories.value.filter(c => c !== categoryName)
+      
+      // 2. تحديث المنتجات في السيرفر (تحويل فئتها إلى "عام")
+      const updates = products.value
+        .filter(p => p.category === categoryName)
+        .map(p => $fetch('/api/products', {
+          method: 'PUT',
+          body: { ...p, category: 'عام' }
+        }))
+      
+      await Promise.all(updates)
+      await refresh()
+      form.value.category = 'عام'
+      alert('✅ تم حذف الفئة وتحديث المنتجات المرتبطة.')
+    } catch (e) {
+      alert('❌ حدث خطأ أثناء الحذف.')
+    }
+  }
+}
+
 const handleNewCategory = () => {
-  if (newCategoryName.value.trim()) {
-    form.value.category = newCategoryName.value.trim()
+  const name = newCategoryName.value.trim()
+  if (name) {
+    if (!temporaryCategories.value.includes(name)) temporaryCategories.value.push(name)
+    form.value.category = name
     newCategoryName.value = ''
   }
 }
 
-// معالجة رفع الصورة وتحويلها لـ Base64
+const clearNewCategory = () => {
+  newCategoryName.value = ''
+  form.value.category = 'عام'
+}
+
 const handleImageUpload = (event) => {
   const file = event.target.files[0]
   if (!file) return
-  
   const reader = new FileReader()
-  reader.onload = (e) => {
-    form.value.image = e.target.result
-  }
+  reader.onload = (e) => { form.value.image = e.target.result }
   reader.readAsDataURL(file)
-
-  const handleImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 800; // تصغير العرض لـ 800 بكسل كحد أقصى
-      let width = img.width;
-      let height = img.height;
-
-      if (width > MAX_WIDTH) {
-        height *= MAX_WIDTH / width;
-        width = MAX_WIDTH;
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      // تحويل الصورة لجودة 0.7 (توفر مساحة ضخمة وبجودة ممتازة)
-      form.value.image = canvas.toDataURL('image/jpeg', 0.7);
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-};
 }
 
 const saveProduct = async () => {
@@ -271,14 +243,12 @@ const saveProduct = async () => {
     })
     resetForm()
     await refresh()
-    alert('✅ تم الحفظ بنجاح')
-  } catch (e) {
-    alert('❌ خطأ في الحفظ')
-  }
+    alert('✅ تم الحفظ')
+  } catch (e) { alert('❌ خطأ في الحفظ') }
 }
 
 const deleteProduct = async (id) => {
-  if (confirm('هل أنت متأكد من الحذف؟')) {
+  if (confirm('حذف المنتج؟')) {
     await $fetch(`/api/products?id=${id}`, { method: 'DELETE' })
     await refresh()
   }
@@ -292,15 +262,11 @@ const startEdit = (p) => {
 
 const resetForm = () => {
   editId.value = null
+  newCategoryName.value = ''
   form.value = { title: '', description: '', category: '', discountPrice: 0, originalPrice: 0, image: '', tag: '' }
 }
 </script>
 
 <style scoped>
-.admin-input {
-  @apply w-full bg-slate-50 border-slate-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all border block;
-}
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.admin-input { @apply w-full bg-slate-50 border-slate-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all border block; }
 </style>
