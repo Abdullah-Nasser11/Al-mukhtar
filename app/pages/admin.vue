@@ -94,6 +94,13 @@
                 </div>
               </div>
 
+              <div v-if="calculateDiscount(form.originalPrice, form.discountPrice) > 0" class="bg-green-50 p-3 rounded-xl border border-green-100 flex justify-between items-center">
+                <span class="text-xs text-green-700 font-bold">نسبة الخصم المحتسبة:</span>
+                <span class="bg-green-600 text-white px-2 py-0.5 rounded-lg text-sm font-black">
+                  {{ calculateDiscount(form.originalPrice, form.discountPrice) }}%
+                </span>
+              </div>
+
               <div>
                 <label class="block text-sm font-medium text-slate-600 mb-1">صورة المنتج</label>
                 <div class="relative group">
@@ -121,33 +128,44 @@
           <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-6 border-b border-slate-50 flex justify-between items-center">
               <h3 class="font-bold text-slate-800 text-lg">قائمة المخزون</h3>
-              <input v-model="searchQuery" type="text" placeholder="بحث..." class="bg-slate-50 border border-slate-100 rounded-lg text-sm p-2 w-64 outline-none" />
+              <input v-model="searchQuery" type="text" placeholder="بحث باسم المنتج أو الفئة..." class="bg-slate-50 border border-slate-100 rounded-lg text-sm p-2 w-64 outline-none" />
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-right text-sm">
                 <thead>
                   <tr class="bg-slate-50/50 text-slate-400">
                     <th class="p-4">المنتج</th>
-                    <th class="p-4">الفئة / الوصف</th>
+                    <th class="p-4">الفئة / نسبة الخصم</th>
                     <th class="p-4 text-center">العمليات</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                   <tr v-for="product in filteredProducts" :key="product.id" class="group hover:bg-slate-50">
                     <td class="p-4 flex items-center gap-3">
-                      <div class="w-10 h-10 rounded bg-slate-100 overflow-hidden border">
+                      <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden border border-slate-200 shadow-sm">
                         <img v-if="product.image" :src="product.image" class="w-full h-full object-cover" />
                       </div>
-                      <span class="font-bold text-slate-700">{{ product.title }}</span>
+                      <div class="flex flex-col">
+                        <span class="font-bold text-slate-700">{{ product.title }}</span>
+                        <span class="text-[10px] text-indigo-600 font-bold">{{ product.discountPrice }} ر.س</span>
+                      </div>
                     </td>
                     <td class="p-4">
-                      <span class="bg-slate-100 px-2 py-0.5 rounded text-[10px] text-slate-600 font-bold block w-fit mb-1">{{ product.category }}</span>
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-slate-100 px-2 py-0.5 rounded text-[10px] text-slate-600 font-bold block w-fit italic">
+                          {{ product.category }}
+                        </span>
+                        <span v-if="calculateDiscount(product.originalPrice, product.discountPrice) > 0" 
+                              class="bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded text-[10px] font-black">
+                          خصم {{ calculateDiscount(product.originalPrice, product.discountPrice) }}%
+                        </span>
+                      </div>
                       <p class="text-[10px] text-slate-400 line-clamp-1">{{ product.description }}</p>
                     </td>
                     <td class="p-4 text-center">
                       <div class="flex justify-center gap-2">
-                        <button @click="startEdit(product)" class="p-1 text-indigo-600">📝</button>
-                        <button @click="deleteProduct(product.id)" class="p-1 text-red-500">🗑️</button>
+                        <button @click="startEdit(product)" class="p-2 hover:bg-indigo-50 rounded-lg transition-colors text-indigo-600" title="تعديل">📝</button>
+                        <button @click="deleteProduct(product.id)" class="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-500" title="حذف">🗑️</button>
                       </div>
                     </td>
                   </tr>
@@ -179,6 +197,11 @@ const form = ref({
   image: '',
   tag: ''
 })
+const calculateDiscount = (original, discount) => {
+  if (!original || !discount || discount >= original) return 0;
+  const percentage = ((original - discount) / original) * 100;
+  return Math.round(percentage); 
+}
 
 /* تحميل المنتجات */
 onMounted(() => {
@@ -283,5 +306,7 @@ const resetForm = () => {
 </script>
 
 <style scoped>
-.admin-input { @apply w-full bg-slate-50 border-slate-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all border block; }
+.admin-input {
+  @apply w-full bg-slate-50 border-slate-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all border block;
+}
 </style>
