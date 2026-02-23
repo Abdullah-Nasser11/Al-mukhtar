@@ -69,13 +69,20 @@ const adminCookie = useCookie('is_admin')
 
 const handleLogin = () => {
   if (password.value === 'admin123') {
-    adminCookie.value = 'true'
-    navigateTo('/admin')
+    // نستخدم 'is_admin' ليتطابق مع الـ Middleware
+    const isAdminCookie = useCookie('is_admin', {
+      maxAge: 60 * 60 * 24, // يبقى مسجل الدخول لمدة يوم كامل
+      path: '/' // متاح في كل الموقع
+    })
+    
+    isAdminCookie.value = 'true'
+    
+    // توجيه فوري
+    return navigateTo('/admin')
   } else {
     error.value = true
-    // إخفاء رسالة الخطأ بعد 3 ثوانٍ
     setTimeout(() => error.value = false, 3000)
-    password.value = '' // تصفير الحقل
+    password.value = ''
   }
 }
 </script>
