@@ -1,12 +1,15 @@
 export default defineNuxtRouteMiddleware((to) => {
-  // نستخدم useCookie مع اسم موحد
-  const isAdmin = useCookie('is_admin')
-  
-  if (to.path.startsWith('/admin')) {
-    // نتحقق من القيمة. إذا كانت فارغة، نمنع الدخول
-    if (isAdmin.value !== 'true') {
-      console.log("الوصول مرفوض: الكوكي غير موجود أو قيمته ليست true")
-      return navigateTo('/login')
+  // استخدام طريقتك الذكية لضمان العمل في المتصفح
+  if (import.meta.client) {
+    const isAdmin = useCookie('is_admin')
+    
+    if (to.path.startsWith('/admin')) {
+      // طباعة القيمة في Console المتصفح للتأكد (يمكنك حذفها لاحقاً)
+      console.log("قيمة الكوكي الحالية هي:", isAdmin.value)
+
+      if (isAdmin.value !== 'true') {
+        return navigateTo('/login')
+      }
     }
   }
 })

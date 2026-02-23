@@ -76,14 +76,20 @@ const isAdminCookie = useCookie('is_admin', {
 
 const handleLogin = () => {
   if (password.value === 'admin123') {
-    // وضع الكوكي
-    const adminStatus = useCookie('is_admin', { maxAge: 60 * 60 * 24, path: '/' })
-    adminStatus.value = 'true'
+    // تحديد الخيارات لضمان ثبات الكوكي
+    const isAdminCookie = useCookie('is_admin', {
+      maxAge: 60 * 60 * 24, // يوم واحد
+      path: '/',
+      sameSite: 'lax'
+    })
+    
+    isAdminCookie.value = 'true'
 
-    // الانتظار للحظة بسيطة ثم الانتقال الإجباري
+    // الانتقال الكامل باستخدام window.location هو الحل الأضمن لمشكلة الـ Redirect Loop
     setTimeout(() => {
       window.location.href = '/admin'
-    }, 300)
+    }, 200)
+    
   } else {
     error.value = true
     setTimeout(() => error.value = false, 3000)
