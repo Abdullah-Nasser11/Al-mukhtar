@@ -2,6 +2,7 @@
   command = "npm run generate"
   publish = ".output/public"
 
+# أهم جزء لحل مشكلة الـ 404 التي تظهر في صورتك
 [[redirects]]
   from = "/*"
   to = "/index.html"

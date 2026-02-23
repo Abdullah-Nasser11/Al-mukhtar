@@ -1,15 +1,11 @@
 export default defineNuxtRouteMiddleware((to) => {
-  // استخدام طريقتك الذكية لضمان العمل في المتصفح
+  // نستخدم الكود الذي نجح معك في الكونسول
   if (import.meta.client) {
     const isAdmin = useCookie('is_admin')
     
-    if (to.path.startsWith('/admin')) {
-      // طباعة القيمة في Console المتصفح للتأكد (يمكنك حذفها لاحقاً)
-      console.log("قيمة الكوكي الحالية هي:", isAdmin.value)
-
-      if (isAdmin.value !== 'true') {
-        return navigateTo('/login')
-      }
+    // إذا كنت تحاول دخول صفحة الأدمن والكوكي غير موجود أو ليس true
+    if (to.path.startsWith('/admin') && isAdmin.value !== 'true') {
+      return navigateTo('/login')
     }
   }
 })
