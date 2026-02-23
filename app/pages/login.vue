@@ -84,6 +84,7 @@ const handleLogin = () => {
     })
     
     isAdminCookie.value = 'true'
+    localStorage.setItem('is_admin', 'true')
 
     // الانتقال الكامل باستخدام window.location هو الحل الأضمن لمشكلة الـ Redirect Loop
     setTimeout(() => {
