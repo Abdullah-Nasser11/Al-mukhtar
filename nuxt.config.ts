@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   ssr: false,
   runtimeConfig: {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    supabaseStorageBucket: process.env.SUPABASE_STORAGE_BUCKET || 'product-images',
     public: {
       supabaseUrl: process.env.SUPABASE_URL
     }

@@ -280,14 +280,12 @@ const deleteProduct = async (product) => {
 
 const startEdit = (p) => {
   editId.value = p.id
-  editOriginal.value = { ...p }
   form.value = { ...p }
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 const resetForm = () => {
   editId.value = null
-  editOriginal.value = null
   form.value = { 
     title: '', 
     description: '', 
