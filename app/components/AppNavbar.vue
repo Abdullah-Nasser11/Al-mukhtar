@@ -90,7 +90,7 @@
 
         <div
           class="absolute right-0 top-0 h-full w-[280px] bg-white shadow-2xl p-6 flex flex-col transform transition-transform duration-300">
-          <div class="flex justify-between items-center mb-8">
+          <div class="flex justify-between items-center mb-6">
             <span class="font-black text-xl text-indigo-600">القائمة</span>
             <button @click="isOpen = false" class="p-2 text-gray-400 hover:text-black"><svg class="w-6 h-6" fill="none"
                 stroke="currentColor" viewBox="0 0 24 24">
@@ -98,16 +98,34 @@
               </svg></button>
           </div>
 
-          <div class="space-y-2 flex-1">
+          <div class="mb-6 relative">
+            <input v-model="searchQuery" type="text" placeholder="ابحث عن منتج..."
+              class="w-full pr-10 pl-4 py-3 border border-gray-100 rounded-2xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-right" />
+            <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            
+            <div v-if="searchQuery.trim()" class="mt-2 bg-white border rounded-xl overflow-hidden shadow-lg max-h-48 overflow-y-auto">
+              <div v-for="product in filteredProducts" :key="product.id" @click="goToProduct(product.id)"
+                class="p-3 hover:bg-indigo-50 cursor-pointer flex items-center gap-3 border-b last:border-0 text-right">
+                <img :src="product.image" class="w-8 h-8 rounded-lg object-cover">
+                <span class="text-xs font-bold">{{ product.title }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 flex-1 overflow-y-auto">
             <NuxtLink v-for="link in navLinks" :key="link.path" :to="link.path" @click="isOpen = false"
-              class="block p-4 rounded-2xl font-bold text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all">
+              class="block p-4 rounded-2xl font-bold text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all text-right">
               {{ link.name }}
             </NuxtLink>
 
             <hr v-if="isAdmin" class="my-4 border-gray-50">
 
             <NuxtLink v-if="isAdmin" to="/admin" @click="isOpen = false"
-              class="block p-4 rounded-2xl font-black bg-red-50 text-red-600 border border-red-100">
+              class="block p-4 rounded-2xl font-black bg-red-50 text-red-600 border border-red-100 text-right">
               ⚙️ لوحة التحكم
             </NuxtLink>
           </div>
@@ -138,7 +156,7 @@ const filteredProducts = computed(() => {
 })
 
 const goToProduct = (id) => {
-  showDropdown.value = false; searchQuery.value = ''; navigateTo(`/product/${id}`)
+  showDropdown.value = false; searchQuery.value = ''; isOpen.value = false; navigateTo(`/product/${id}`)
 }
 
 const logout = () => { isAdmin.value = null; navigateTo('/'); isOpen.value = false }

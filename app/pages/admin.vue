@@ -59,20 +59,34 @@
                 <textarea v-model="form.description" rows="3" class="admin-input" placeholder="اكتب تفاصيل المنتج هنا..."></textarea>
               </div>
 
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-slate-600 mb-1">الفئة</label>
-                  <select v-model="form.category" required class="admin-input">
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-1">الفئة</label>
+                <div class="flex gap-2 mb-2">
+                  <select v-model="form.category" required class="admin-input flex-1">
                     <option value="" disabled>اختر الفئة</option>
                     <option v-for="cat in existingCategories" :key="cat" :value="cat">{{ cat }}</option>
                     <option value="NEW_CATEGORY">+ فئة جديدة</option>
                   </select>
-                  <input v-if="form.category === 'NEW_CATEGORY'" v-model="newCategoryName" type="text" 
-                    class="admin-input mt-2 border-indigo-300" placeholder="اسم الفئة الجديدة" @blur="handleNewCategory" />
+                  <button v-if="form.category && form.category !== 'NEW_CATEGORY' && form.category !== 'عام'" 
+                          type="button" @click="removeCategory(form.category)" 
+                          class="bg-red-50 text-red-500 px-3 rounded-xl hover:bg-red-100 transition-colors" title="حذف الفئة">
+                    🗑️
+                  </button>
                 </div>
-                <div>
+                
+                <div v-if="form.category === 'NEW_CATEGORY'" class="flex gap-2 mt-2 animate-in fade-in slide-in-from-top-1">
+                  <input v-model="newCategoryName" type="text" 
+                    class="admin-input border-indigo-300" placeholder="اسم الفئة الجديدة" @keyup.enter="handleNewCategory" />
+                  <button type="button" @click="handleNewCategory" class="bg-indigo-600 text-white px-4 rounded-xl hover:bg-indigo-700 font-bold whitespace-nowrap">
+                    إضافة
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
                   <label class="block text-sm font-medium text-slate-600 mb-1">الخصم</label>
-                  <input v-model="form.tag" type="text" class="admin-input" placeholder="خصم 20%" />
+                  <input v-model="form.tag" type="text" class="admin-input" placeholder="خصم 20%"/>
                 </div>
               </div>
 
@@ -176,18 +190,14 @@
 </template>
 
 <script setup>
-// 1. ملاحظة: قم بتعطيل الميدل وير مؤقتاً إذا لم يكن لديك نظام تسجيل دخول جاهز
-// definePageMeta({ middleware: 'auth' })
-
-// جلب البيانات من الـ API
 const { data: products, refresh } = await useFetch('/api/products')
 
 const editId = ref(null)
-const editOriginal = ref(null)
 const searchQuery = ref('')
 const newCategoryName = ref('')
+const manualCategories = ref([]) // فئات مضافة يدوياً خلال الجلسة
+const deletedCategories = ref([]) // فئات تم إخفاؤها
 
-// نموذج البيانات (يجب أن يطابق أعمدة الجدول في Supabase)
 const form = ref({
   title: '',
   description: '',
@@ -198,16 +208,16 @@ const form = ref({
   tag: ''
 })
 
-// استخراج الفئات الفريدة
+// دمج الفئات من المنتجات + الفئات المضافة يدوياً
 const existingCategories = computed(() => {
-  if (!products.value) return ['عام']
-  const cats = products.value.map(p => p.category).filter(Boolean)
-  return [...new Set(['عام', ...cats])]
+  const fromProducts = products.value ? products.value.map(p => p.category) : []
+  const combined = [...fromProducts, ...manualCategories.value]
+  const unique = [...new Set(['عام', ...combined])]
+  return unique.filter(c => c && !deletedCategories.value.includes(c))
 })
 
 const categoriesCount = computed(() => existingCategories.value.length)
 
-// تصفية المنتجات للبحث
 const filteredProducts = computed(() => {
   if (!products.value) return []
   const query = searchQuery.value.toLowerCase()
@@ -216,10 +226,21 @@ const filteredProducts = computed(() => {
     p.category?.toLowerCase().includes(query)
   )
 })
-
 const handleNewCategory = () => {
-  if (newCategoryName.value.trim()) {
-    form.value.category = newCategoryName.value.trim()
+  const val = newCategoryName.value.trim()
+  if (val) {
+    if (!manualCategories.value.includes(val)) {
+      manualCategories.value.push(val)
+    }
+    form.value.category = val 
+    newCategoryName.value = '' 
+  }
+}
+
+const removeCategory = (cat) => {
+  if (confirm(`هل تريد إخفاء فئة "${cat}" من القائمة؟`)) {
+    deletedCategories.value.push(cat)
+    if (form.value.category === cat) form.value.category = ''
   }
 }
 
@@ -231,49 +252,47 @@ const handleImageUpload = (event) => {
   reader.readAsDataURL(file)
 }
 
-// دالة الحفظ (إضافة أو تعديل)
+// دالة واحدة شاملة لكل حالات الحفظ والتعديل
 const saveProduct = async () => {
   try {
-    if (form.value.category === 'NEW_CATEGORY') handleNewCategory()
+    // إصلاح: التأكد من تحويل 'NEW_CATEGORY' إلى القيمة المكتوبة فعلياً قبل الإرسال
+    if (form.value.category === 'NEW_CATEGORY') {
+      if (newCategoryName.value.trim()) {
+        handleNewCategory()
+      } else {
+        alert('الرجاء إدخال اسم الفئة الجديدة أو اختيار فئة موجودة')
+        return
+      }
+    }
 
     const method = editId.value ? 'PUT' : 'POST'
     
-    // إذا كانت إضافة جديدة، نحذف الـ id من الجسم المرسل تماماً
-    const payload = editId.value
-      ? { ...form.value, id: editId.value, original: editOriginal.value }
+    // إعداد البيانات المرسلة
+    const payload = editId.value 
+      ? { ...form.value, id: editId.value } 
       : { ...form.value }
 
     if (!editId.value) delete payload.id 
 
-    await $fetch('/api/products', {
-      method,
-      body: payload
-    })
+    await $fetch('/api/products', { method, body: payload })
     
     resetForm()
-    await refresh() // تحديث القائمة
+    await refresh()
     alert('✅ تم الحفظ بنجاح')
   } catch (e) {
-    console.error('Save Error:', e)
-    const message = e?.data?.message || e?.statusMessage || e?.message || 'فشل في الحفظ'
-    alert(`❌ ${message}`)
+    console.error(e)
+    alert(`❌ فشل في الحفظ`)
   }
 }
 
-// دالة الحذف
 const deleteProduct = async (product) => {
-  if (confirm('⚠️ هل أنت متأكد من حذف هذا المنتج نهائياً؟')) {
+  if (confirm('⚠️ هل أنت متأكد من حذف هذا المنتج؟')) {
     try {
-      await $fetch('/api/products', { 
-        method: 'DELETE',
-        body: { product, id: product?.id }
-      })
+      await $fetch('/api/products', { method: 'DELETE', body: { id: product?.id } })
       await refresh()
       alert('🗑️ تم الحذف بنجاح')
     } catch (e) {
-      console.error('Delete Error:', e)
-      const message = e?.data?.message || e?.statusMessage || e?.message || 'فشل الحذف'
-      alert(`❌ ${message}`)
+      alert(`❌ فشل الحذف`)
     }
   }
 }
@@ -287,13 +306,8 @@ const startEdit = (p) => {
 const resetForm = () => {
   editId.value = null
   form.value = { 
-    title: '', 
-    description: '', 
-    category: '', 
-    discountPrice: 0, 
-    originalPrice: 0, 
-    image: '', 
-    tag: '' 
+    title: '', description: '', category: '', 
+    discountPrice: 0, originalPrice: 0, image: '', tag: '' 
   }
   newCategoryName.value = ''
 }
