@@ -3,13 +3,6 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   ssr: false,
-  app: {
-    head: {
-      link: [
-        { rel: 'icon', type: 'image/png', href: '/logo.png' }
-      ]
-    }
-  },
   runtimeConfig: {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     supabaseStorageBucket: process.env.SUPABASE_STORAGE_BUCKET || 'product-images',
