@@ -1,8 +1,10 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
+
   devtools: { enabled: true },
-  ssr: false,
+
+  // ✅ فعل SSR لأن عندك API
+  ssr: true,
 
   runtimeConfig: {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -14,6 +16,11 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/admin/**': { ssr: false }
+  },
+
+  // ✅ مهم جداً لـ Vercel
+  nitro: {
+    preset: 'vercel'
   },
 
   modules: ['@nuxtjs/tailwindcss']
