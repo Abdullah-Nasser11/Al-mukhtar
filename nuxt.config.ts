@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   ssr: false,
+
   runtimeConfig: {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     supabaseStorageBucket: process.env.SUPABASE_STORAGE_BUCKET || 'product-images',
@@ -10,15 +11,11 @@ export default defineNuxtConfig({
       supabaseUrl: process.env.SUPABASE_URL
     }
   },
-  // إضافة قواعد التوجيه هنا
+
   routeRules: {
     '/admin/**': { ssr: false }
   },
 
-  nitro: {
-    preset: "node-server"
-  },
-
-  modules: ['@nuxtjs/tailwindcss'],
-
+  modules: ['@nuxtjs/tailwindcss']
 })
+
