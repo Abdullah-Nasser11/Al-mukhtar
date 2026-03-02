@@ -31,7 +31,7 @@
               class="h-28 md:h-36 w-auto object-contain hover:scale-105 transition-transform duration-500">
           </NuxtLink>
           <p class="text-gray-500 text-lg leading-8 max-w-xs mx-auto lg:mx-0 font-medium">
-            تجربة تسوق تتجاوز التوقعات، نختار لكم أجود زيوت العالمية.
+            تجربة تسوق تتجاوز التوقعات، نختار لكم أجود الزيوت العالمية.
           </p>
           <div class="flex gap-4 justify-center lg:justify-start">
             <a href="https://www.facebook.com/share/18EuwAGuSu/" target="_blank" class="social-icon-btn bg-[#1877F2] shadow-[#1877F2]/20">
@@ -157,7 +157,8 @@
 }
 
 .social-icon-btn {
-  @apply w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 hover:-translate-y-2 shadow-lg hover:shadow-2xl;
+  /* smaller on mobile, larger on md+ */
+  @apply w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center transition-all duration-500 hover:-translate-y-2 shadow-lg hover:shadow-2xl;
 }
 
 .branch-card {

@@ -11,11 +11,6 @@
           <div class="flex flex-col md:flex-row">
 
             <div class="md:w-1/2 bg-gray-100 p-8 flex items-center justify-center relative group">
-              <div v-if="product.tag" class="absolute top-4 right-4 z-10">
-                <span class="bg-black text-white px-4 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
-                  {{ product.tag }}
-                </span>
-              </div>
 
                 <img 
                   :key="product.id"

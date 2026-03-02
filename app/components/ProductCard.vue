@@ -6,16 +6,17 @@
     <NuxtLink :to="`/product/${id}`"
       class="block bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center cursor-pointer">
       <img :src="image" alt="product-img"
-        class="mx-auto duration-500 w-full h-28 object-contain p-2 transform group-hover:scale-110 md:max-w-[14rem] md:h-48 md:p-3" />
+        class="mx-auto duration-500 w-full h-32 object-contain p-2 transform group-hover:scale-110 md:max-w-[14rem] md:h-48 md:p-3" />
     </NuxtLink>
 
     <div class="flex flex-col space-y-3">
       <div class="space-y-1 text-right">
-        <div v-if="tag"
-          class="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white bg-black rounded-full md:px-3 md:py-1 md:text-[10px]">
-          {{ tag }}
+        <div class="flex items-center gap-4 mb-8">
+          <span v-if="originalPrice > discountPrice"
+            class="bg-red-50 text-red-600 px-3 py-1 rounded-lg text-xs font-bold">
+            خصم {{ Math.round(((originalPrice - discountPrice) / originalPrice) * 100) }}%
+          </span>
         </div>
-
         <NuxtLink :to="`/product/${id}`">
           <h2
             class="text-sm font-bold text-gray-800 leading-snug hover:text-indigo-600 transition-colors cursor-pointer md:text-lg">
@@ -32,7 +33,7 @@
         </div>
 
         <button @click.stop="addToCart"
-          class="relative flex items-center justify-center w-12 h-12 text-white bg-black rounded-2xl shadow-lg hover:bg-gray-600 transition-all active:scale-95 group md:w-14 md:h-14">
+          class="relative flex items-center justify-center w-10 h-10 text-white bg-black rounded-2xl shadow-lg hover:bg-gray-600 transition-all active:scale-95 group md:w-14 md:h-14">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24"
             stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"

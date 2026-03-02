@@ -8,7 +8,7 @@
           <p class="text-slate-500 font-medium">لديك <span class="text-indigo-600 font-black">{{ cart.length }}</span>
             منتجات مميزة</p>
         </div>
-        <NuxtLink to="/"
+        <NuxtLink to="/products"
           class="group flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition-all font-bold">
           <span class="text-sm">مواصلة التسوق</span>
           <div class="bg-indigo-100 p-2 rounded-full group-hover:bg-indigo-600 group-hover:text-white transition-all">
