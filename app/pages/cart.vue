@@ -99,7 +99,7 @@
         <div class="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8 text-6xl">🛍️</div>
         <h2 class="text-3xl font-black text-slate-900 mb-4">لم تضف شيئاً بعد!</h2>
         <p class="text-slate-400 mb-10 max-w-xs mx-auto font-medium">ابدأ بإضافة بعض المنتجات الرائعة لسلتك الآن</p>
-        <NuxtLink to="/"
+        <NuxtLink to="/products"
           class="bg-indigo-600 text-white px-12 py-4 rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 inline-block">
           تصفح المنتجات</NuxtLink>
       </div>
