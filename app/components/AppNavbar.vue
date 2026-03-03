@@ -10,7 +10,7 @@
         </div>
 
         <div class="hidden lg:flex items-center space-x-reverse space-x-7">
-          <NuxtLink v-for="link in navLinks" :key="link.path" :to="link.path"
+          <NuxtLink v-for="link in navLinks" :key="link.path" :to="link.path" @click="link.path === '#footer' ? scrollToFooter($event) : null"
             class="text-gray-600 hover:text-indigo-600 transition-all duration-200 font-bold text-sm"
             active-class="text-indigo-600">
             {{ link.name }}
@@ -175,6 +175,16 @@ const navLinks = [
   { name: 'الرئيسية', path: '/' },
   { name: 'المنتجات', path: '/products' },
   { name: 'من نحن؟', path: '/about' },
-  { name: 'العروض', path: '/offers' },
+  { name: 'للتواصل', path: '#footer' }, // تم التعديل هنا
 ]
+
+// أضف هذه الدالة
+const scrollToFooter = (e) => {
+  e.preventDefault();
+  const footer = document.getElementById('footer');
+  if (footer) {
+    footer.scrollIntoView({ behavior: 'smooth' });
+    isOpen.value = false; // لإغلاق القائمة في الجوال عند الضغط
+  }
+}
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <footer class="relative bg-white pt-24 pb-4 overflow-hidden font-sans border-t border-gray-50" dir="rtl">
+  <footer id="footer" class="relative bg-white pt-24 pb-4 overflow-hidden font-sans border-t border-gray-50" dir="rtl">
 
     <div
       class="absolute top-0 left-0 w-96 h-96 bg-indigo-50/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 z-0">
