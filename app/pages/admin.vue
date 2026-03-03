@@ -303,6 +303,13 @@ const handleImageUpload = (event) => {
   reader.onload = (e) => { form.value.image = e.target.result }
   reader.readAsDataURL(file)
 }
+onBeforeMount(() => {
+  const isAdmin = useCookie('is_admin')
+  // إذا لم يكن الكوكي موجوداً، أعد توجيهه لصفحة الدخول
+  if (!isAdmin.value) {
+    window.location.href = '/login'
+  }
+})
 
 // دالة واحدة شاملة لكل حالات الحفظ والتعديل
 const saveProduct = async () => {

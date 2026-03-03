@@ -3,7 +3,6 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  // ✅ فعل SSR لأن عندك API
   ssr: true,
 
   runtimeConfig: {
@@ -18,7 +17,7 @@ export default defineNuxtConfig({
     '/admin/**': { ssr: false }
   },
 
-  // ✅ مهم جداً لـ Vercel
+
   nitro: {
     preset: 'vercel'
   },
