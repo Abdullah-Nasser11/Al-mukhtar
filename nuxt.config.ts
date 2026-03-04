@@ -1,4 +1,11 @@
 export default defineNuxtConfig({
+  app: {
+    head: {
+      meta: [
+        { name: 'google-site-verification', content: '-MluZ2MQgs2D230KGaTD-gYlHvuD2-LGkSIxSCJzdd8' }
+      ]
+    }
+  },
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   ssr: true,
