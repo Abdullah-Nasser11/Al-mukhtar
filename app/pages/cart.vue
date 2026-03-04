@@ -132,7 +132,7 @@ import { ref, computed, onMounted } from 'vue'
 
 const cart = ref([])
 const customer = ref({ name: '', phone: '', address: '' })
-const companyPhone = "963991789533"
+const companyPhone = "963951349857"
 
 onMounted(() => {
   const saved = localStorage.getItem('cart')
