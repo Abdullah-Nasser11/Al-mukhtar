@@ -1,8 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-
   devtools: { enabled: true },
-
   ssr: true,
 
   runtimeConfig: {
@@ -17,11 +15,23 @@ export default defineNuxtConfig({
     '/admin/**': { ssr: false }
   },
 
-
   nitro: {
     preset: 'vercel'
   },
 
-  modules: ['@nuxtjs/tailwindcss']
-})
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/seo'
+  ],
 
+  site: {
+    url: 'https://al-mukhtar.vercel.app',
+    name: 'متجر المختار',
+    description: 'متجر المختار - وجهتك الأولى لأفضل المنتجات والزيوت.',
+    defaultLocale: 'ar',
+  },
+
+  seo: {
+    redirectToCanonicalSiteUrl: true,
+  }
+})

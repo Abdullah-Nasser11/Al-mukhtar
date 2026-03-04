@@ -1,4 +1,7 @@
 <template>
+  <head>
+    <meta name="google-site-verification" content="-MluZ2MQgs2D230KGaTD-gYlHvuD2-LGkSIxSCJzdd8" />
+  </head>
   <div class="min-h-screen bg-gray-100 text-gray-900">
     <!-- Header -->
     <!-- محتوى الصفحات -->

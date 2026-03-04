@@ -11,6 +11,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/seo": "3.4.0",
     "@supabase/supabase-js": "^2.97.0",
     "nuxt": "^4.3.1",
     "swiper": "^12.1.0",
