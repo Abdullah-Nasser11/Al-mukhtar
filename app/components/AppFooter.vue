@@ -114,7 +114,7 @@
                 </a>
                 <h4 class="text-slate-900 font-black text-xl">فرع حماة</h4>
               </div>
-              <p class="text-gray-500 text-sm mb-4 leading-relaxed">خطاب _ طريق محردة</p>
+              <p class="text-gray-500 text-sm mb-4 leading-relaxed">حماة _ خطاب</p>
               <a href="https://wa.me/963951688251" target="_blank"
                 class="whatsapp-number-box text-emerald-600 border-emerald-100 hover:bg-emerald-600">
                 <span class="flex items-center gap-2">+963 951 688 251</span>
